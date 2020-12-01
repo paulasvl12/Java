@@ -1,0 +1,177 @@
+import java.io.*;	// wildcard * for "import everything in the package"
+import java.util.*;
+
+// have all code, including main, in one file
+public class Exceptions {
+
+	public void introduction()
+	{
+		System.out.println("We will investigate exceptions in this program.");
+	}
+	
+	// a method that causes an exception
+	public void accessArray()
+	{
+		int[] arr = new int[5];
+		
+		arr[10] = 17;
+		System.out.println("after the problematic code");
+	}
+	
+	// "handling" an exception: deal with any potential exception
+	// right where it happens; requires a try-catch block
+	public void accessArrayHandle()
+	{
+		int[] arr = new int[5];
+		int index = 10;
+		
+		// about to execute code that could go into an exception
+		// the code that might throw and exception goes into 'try'
+		try
+		{
+			arr[index] = 17;
+			// next line will get skipped if an exception should
+			// occur in the previous line
+			System.out.println("assigned " + arr[index]);
+		}
+		// the code that must run as a response to an exception goes into
+		// 'catch'
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			System.out.println("exception message: " + e.getMessage());
+		}
+		// note the program continues even when an exception occurs
+		System.out.println("after try-catch");
+	}
+	
+	// "specify" an exception: do not handle the exception where it occurs
+	// but 'pass it on' to whoever calls the method
+	public void accessArraySpecify() throws ArrayIndexOutOfBoundsException
+	{
+		int[] arr = new int[5];
+		int index = 10;
+		
+		arr[index] = 17;
+		// next line will get skipped if an exception should
+		// occur in the previous line
+		System.out.println("assigned " + arr[index]);
+	}
+	
+	// generate a checked exception: use FileNotFoundException
+/*	public void fileOpen()
+	{
+		// try to open a file that doesn't exist
+		File f = new File("noexist.txt");
+		// unhandled exception FileNotFoundException
+		// won't compile as is
+		Scanner sc = new Scanner(f);
+		
+		// now use sc to read from the file
+	}*/
+	
+	public void fileOpenHandle()
+	{
+		// try to open a file that doesn't exist
+		File f = new File("noexist.txt");
+		// unhandled exception FileNotFoundException
+		// won't compile as is
+		Scanner sc;
+		
+		try
+		{
+			sc = new Scanner(f);
+		}
+		catch(FileNotFoundException e)
+		{
+			System.out.println("Exception opening file: " + e.getMessage());
+		}
+	}
+	
+	// generate div by zero exception
+	public void div0Handle()
+	{
+		int dividend = 1, divisor = 0;
+		
+		try
+		{
+			if(dividend / divisor > 10)
+			{
+				System.out.println("You won!");
+			}
+		}
+		catch(ArithmeticException e)
+		{
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public void handleSeveral()
+	{
+		Scanner sc = new Scanner(System.in);
+		int n = 1, number = 1000;
+		
+		while(number > 0)
+		{
+			System.out.print("Enter n: ");
+			try
+			{
+				n = sc.nextInt();
+			}
+			catch(InputMismatchException e)
+			{
+				System.out.println("incorrect input format");
+				// empty the input stream to avoid an infinite loop
+				sc.nextLine();
+				// skip the remainder because executing a division
+				// makes no sense upon 'bad' input
+				continue;
+			}
+			// in Java, only integer division throws an exception when div by 0
+			try
+			{
+				number /= n;
+			}
+			// inheritance, polymorphism: Exception is the base of every
+			// exception type, one can use it as the parameter's type, and
+			// polymorphism will ensure the correct method 'getMessage' for
+			// the applicable exception type gets called at runtime
+			catch(Exception e)
+			// catch(ArithmeticException e)
+			{
+				System.out.println("div by zero, " + e.getMessage());
+				// go back to the top of the loop, skip the following output
+				continue;
+			}
+			System.out.println("Current division = " + number);
+		}
+	}
+	
+	// having main specify an exception will pass it to the JVM
+	public static void main(String[] args) throws ArrayIndexOutOfBoundsException {
+		// TODO Auto-generated method stub
+		// instantiate an object
+		Exceptions ex = new Exceptions();
+		
+		ex.introduction();
+		//ex.accessArray();
+		ex.accessArrayHandle();
+		// now handle thrown exception in main
+		try
+		{
+			ex.accessArraySpecify();
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			System.out.println("An exection occurred when calling accessArraySpecify()");
+			System.out.println("detail: " + e.getMessage());
+		}
+		// or just call the method and have main specify the exception, passing it on
+		// to the JVM
+		//ex.accessArraySpecify();
+		ex.div0Handle();
+		System.out.println("\nMore than one exception might happen in a method call:");
+		ex.handleSeveral();
+		System.out.println("After calling our methods...");
+	}
+
+}
