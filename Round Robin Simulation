@@ -1,0 +1,153 @@
+public class RRSimStart {
+	private double responseTime, turnaroundTime;
+	private double totalTime;
+	
+	
+	private class Process {
+		
+		private String name;
+		private int arrival, duration;
+		private double finishTotal;
+		
+		
+		public Process(String n, int arr, int dur) {
+			
+			name = n;
+			arrival = arr;
+			duration = dur;
+			
+		}
+		
+		public boolean step(int dt) {
+			
+			/* Duration > 0 checks if process is done yet.
+			 *  totalTime >= arrival will check if the process is ready (has arrived), if so takes a step. 
+			 if the arrival time is more than the total time, it means it hasn't arrived yet */
+			if(duration > 0 && totalTime >= arrival) {
+				System.out.print(name);
+				totalTime += dt;
+				duration -= dt;
+				
+				return true;
+			
+			}
+				return false;	
+		}
+		
+		public int getDuration() {
+			
+			return duration;
+			
+		}
+		
+		public int getArrival() {
+			
+			return arrival;
+			
+		}
+
+		public String getName() {
+			
+			return name;
+			
+		}
+		
+		//each process will be assigned a finishing time when they're done
+		public void setTSum(double s) {
+			
+			finishTotal = s;
+			
+		}
+		//returning that finishing time
+		public double turnaroundTime() {
+			
+			return finishTotal;
+			
+		}
+		
+	}
+	
+	Process[] processes = new Process[] {new Process("A", 0, 10), 
+			new Process("B", 0, 20), new Process("C", 0, 40), new Process("D", 0, 30),
+			new Process("E", 0, 20)
+	};
+	
+	public void run() {
+		
+		
+		//TSum indicates the specific turnaround time of a single process A:10, B:60, so on...
+		double TSum = 0;
+		int dt = 10;
+		boolean notDone = true;
+		
+		//outer loop that keeps the inner loop until all processes are done}
+		do
+		{
+			// assume they are done
+			notDone = false;
+			
+			for(int i = 0; i < processes.length; i++)
+			{
+				
+				// have each process take a step dt
+				if(processes[i].step(dt) == true)
+				{
+					
+					// at least one process took a step -> not done
+					notDone = true;
+					// add dt (in this case, 10) every time a process takes a step
+					
+					// the time a process finishes is the sum of the total time up until that stop
+					TSum = totalTime - processes[i].getArrival();
+					processes[i].setTSum(TSum);
+				}
+				
+				
+			}
+		} while(notDone == true);
+
+
+		/* Response time algorithm:
+		 * 1) create a variable for sum (RSum) of all response times by multiplying dt with the index
+		 * 2) the average will be that sum / number of processes
+		 * 3) Do not assume time of arrival is 0, and that amount of processes is 5
+		 */
+		double Rsum = 0;
+		
+		for (int i = 0; i < processes.length; i++) {
+			
+			Rsum += (i * dt) - processes[i].getArrival();
+			responseTime = Rsum / processes.length;
+			
+		}
+		
+		
+		/* Turnaround time algorithm:   
+		Similar to response time, we calculate the average  		*/
+		double sum = 0;
+		for (int i = 0; i < processes.length; i++) {
+			
+			sum += processes[i].turnaroundTime();
+			turnaroundTime = sum/processes.length;
+			
+		}
+
+			
+		// print report: total time, average of response, and turnaround time
+		System.out.println("\nTotal time: " + totalTime);
+		System.out.println("Average Response time: " + responseTime);
+		System.out.println("Average turnaround time: " + turnaroundTime);
+
+
+	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		RRSimStart rr = new RRSimStart();
+		rr.run();
+		
+		
+	}
+
+}
